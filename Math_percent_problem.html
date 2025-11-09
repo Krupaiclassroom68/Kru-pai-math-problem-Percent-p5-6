@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Math Market Challenge — ภารกิจร้านคณิตแฟร์ (ป.5–6) • Percent & Profit (3 ช้อยส์ / ไม่จับเวลา)</title>
+<link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#eafcf4; --bg2:#fffbe7; --ink:#0b1222; --muted:#0f766e;
+    --wire:rgba(6,95,70,.2); --accent:#34d399; --accent2:#fde047; --danger:#ef4444; --ok:#16a34a;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%}
+  body{margin:0;color:var(--ink);font-family:"Kanit","Noto Sans Thai",system-ui,-apple-system,Segoe UI,Roboto,sans-serif;
+    background:radial-gradient(1200px 720px at 50% -10%, #dcfce7 0%, var(--bg1) 50%, var(--bg2) 100%)}
+  .wrap{max-width:1100px;margin:auto;padding:20px 14px 96px}
+  header{display:grid;justify-items:center;text-align:center;gap:8px;margin-bottom:16px}
+  .brand{font-weight:900;letter-spacing:.02em;font-size:clamp(22px,4.6vw,42px);
+    background:linear-gradient(90deg,#10b981,#ef4444,#f59e0b,#10b981);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:0 8px 24px rgba(0,0,0,.08)}
+  .subtitle{color:var(--muted);font-size:clamp(14px,3.4vw,18px)}
+
+  .hud{display:grid;grid-template-columns:1fr auto auto;gap:10px;align-items:center;border:1.5px solid var(--wire);
+    background:linear-gradient(180deg,rgba(255,255,255,.8),rgba(255,255,255,.7));border-radius:16px;box-shadow:0 16px 48px rgba(0,0,0,.08);
+    padding:12px 14px;margin-bottom:14px}
+  .badge{padding:8px 12px;border:1.5px solid var(--wire);border-radius:10px;background:rgba(255,255,255,.8);color:#065f46;font-weight:800;font-size:clamp(12px,3.2vw,16px)}
+  .score{font-weight:900;font-size:clamp(18px,5vw,24px);color:#a16207}
+  .combo{font-weight:900;color:#065f46}
+  .meter{display:none;grid-column:1/-1;margin-top:6px;height:12px;border-radius:999px;background:rgba(6,95,70,.12);overflow:hidden;border:1px solid rgba(6,95,70,.2)}
+  .meter>div{height:100%;width:100%;background:linear-gradient(90deg,#34d399,#fde047);transform-origin:left center}
+
+  .card{border:1.5px solid var(--wire);border-radius:18px;background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.88));
+        padding:18px;box-shadow:0 16px 48px rgba(0,0,0,.08)}
+
+  .row{display:flex;flex-wrap:wrap;gap:12px}
+  .col{flex:1 1 260px}
+  label{color:#065f46;font-weight:800}
+  input,select{width:100%;padding:12px;border-radius:14px;border:2px solid rgba(6,95,70,.2);background:#fff;color:#0b1222}
+  .btn{display:inline-block;border:none;cursor:pointer;padding:12px 18px;border-radius:14px;font-weight:900;font-size:18px;color:#064e3b;
+       background:linear-gradient(145deg,#a7f3d0,#fde68a);box-shadow:0 8px 0 #d9f99d,0 18px 30px rgba(0,0,0,.08);transition:transform .06s,filter .2s}
+  .btn:active{transform:translateY(2px)}
+  .btn.ghost{background:transparent;color:#065f46;border:2px solid rgba(6,95,70,.25);box-shadow:none}
+
+  .title{display:flex;gap:10px;align-items:center;font-weight:800;font-size:clamp(18px,4.2vw,22px)}
+  .stem{margin-top:12px;padding:16px;border-radius:14px;background:rgba(16,27,64,.06);border:1px dashed var(--wire);font-size:clamp(18px,4.8vw,24px);line-height:1.6}
+
+  .choices{display:grid;gap:12px;margin-top:16px}
+  .choice{position:relative;border:2px solid rgba(6,95,70,.15);background:linear-gradient(145deg, rgba(167,243,208,.25), rgba(254,240,138,.3));
+          color:#062e1f;padding:14px 16px;border-radius:14px;cursor:pointer;font-weight:900;font-size:clamp(18px,5vw,26px);
+          box-shadow:0 8px 20px rgba(0,0,0,.08);transition:transform .06s,filter .2s, box-shadow .2s}
+  .choice:hover{transform:translateY(-1px);box-shadow:0 12px 26px rgba(0,0,0,.12)}
+  .choice b.badge{position:absolute;left:10px;top:10px;border-color:transparent;background:linear-gradient(90deg,#34d399,#fde047);
+                  color:#0b1120;box-shadow:inset 0 0 0 2px rgba(255,255,255,.35)}
+  .choice.correct{outline:3px solid var(--ok);box-shadow:0 0 24px rgba(22,163,74,.3)}
+  .choice.wrong{outline:3px solid var(--danger);box-shadow:0 0 22px rgba(239,68,68,.25)}
+
+  .toolbox{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  .tool{border:1.5px solid var(--wire);background:#fff;color:#065f46;padding:10px 12px;border-radius:12px;cursor:pointer;font-weight:800;font-size:clamp(14px,4vw,18px)}
+  .tool.used{opacity:.6}
+  .panel{margin-top:10px;display:none}
+  .panel.show{display:block;animation:fade .22s ease}
+  .panel .hint{border:1.5px solid var(--wire);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.9);color:#065f46;font-size:clamp(16px,4vw,20px)}
+
+  .status{margin-top:12px;font-weight:800;font-size:clamp(16px,4.2vw,20px)}
+  .oktxt{color:#15803d}.badtxt{color:#b91c1c}
+  .footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px}
+  .next{border:1.5px solid var(--wire);background:linear-gradient(90deg,rgba(167,243,208,.5),rgba(254,240,138,.55));color:#064e3b;padding:12px 16px;border-radius:12px;cursor:pointer;font-weight:900;font-size:clamp(16px,4.2vw,20px)}
+
+  .endcard{display:none;margin-top:18px;padding:20px;border-radius:16px;border:1.5px solid var(--wire);
+           background:linear-gradient(180deg,rgba(255,255,255,.95),rgba(255,255,255,.9));text-align:center}
+  .endcard.show{display:block;animation:pop .25s ease}
+  .endcard h2{margin:6px 0 0;font-size:clamp(22px,5vw,28px)}
+  .rank{font-size:clamp(16px,4vw,20px);font-weight:900;margin-top:6px}
+  canvas.fire{position:fixed;inset:0;pointer-events:none}
+
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+  @keyframes pop{from{opacity:0;transform:scale(.95)}to{opacity:1;transform:scale(1)}}
+  @media (max-width:600px){.wrap{padding:16px 12px 84px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="brand">Math Market Challenge 🛍️ ภารกิจร้านคณิตแฟร์</div>
+    <div class="subtitle">สามตัวเลือก • ไม่มีจับเวลา • มีคำใบ้ • เก็บคอมโบ • ดอกไม้ไฟตอนจบ</div>
+  </header>
+
+  <!-- HUD -->
+  <div class="hud">
+    <div class="badge">มิ้นต์–เหลือง | Percent • Profit • Discount</div>
+    <div class="score">คะแนน: <span id="total">0</span></div>
+    <div class="combo">COMBO: <span id="combo">x1.0</span></div>
+    <div class="meter"><div id="timebar"></div></div>
+  </div>
+
+  <!-- HOME -->
+  <section id="home" class="card home">
+    <h1 style="margin:0 0 8px">เตรียมเปิดร้านคณิตแฟร์!</h1>
+    <div class="row" style="margin-top:8px">
+      <div class="col"><label>ชื่อผู้เล่น</label><input id="playerName" placeholder="พิมพ์ชื่อ..." /></div>
+      <div class="col"><label>โหมดเสียง</label>
+        <select id="voiceSel">
+          <option value="both" selected>เอฟเฟกต์ครบ</option>
+          <option value="beep">เฉพาะบี๊บ</option>
+          <option value="mute">ปิดเสียง</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="startBtn">เริ่มเล่น 🎮</button>
+      <button class="btn ghost" id="howBtn">วิธีคิดเร็ว ❓</button>
+    </div>
+  </section>
+
+  <!-- HOWTO -->
+  <section id="howto" class="card" style="display:none">
+    <div class="title">💡 เคล็ด(ไม่)ลับคิดเร็ว</div>
+    <ul style="margin:8px 0 0 18px; line-height:1.7">
+      <li>กำไร <b>x%</b> ⇒ ขาย = ต้นทุน × (1 + x/100)</li>
+      <li>ลดราคา <b>x%</b> ⇒ ราคาขาย = ป้ายราคา × (1 − x/100)</li>
+      <li>กำไรเป็นเงิน ⇒ <b>กำไร/ต้นทุน × 100</b> = ร้อยละกำไร</li>
+      <li>ใช้เลขสวยช่วยคิด: 10%, 20%, 25%, 50% คิดในใจไวมาก!</li>
+    </ul>
+    <div class="footer"><button class="next" id="backHome">กลับ</button></div>
+  </section>
+
+  <!-- QUIZ CARD -->
+  <section id="quiz" class="card" style="display:none">
+    <div class="title"><span class="badge" id="caseId">Q-01</span> <span id="caseTitle">เลือกคำตอบที่ถูกต้อง</span></div>
+    <div class="stem" id="stem">—</div>
+    <div class="choices" id="choices"></div>
+
+    <div class="toolbox">
+      <button class="tool" id="hintBtn">🧭 Hint (ใบ้แนวคิด)</button>
+      <button class="tool" id="solBtn" disabled>📝 เฉลย (หลังตอบ)</button>
+    </div>
+    <div class="panel" id="hintPanel"><div class="hint" id="hintText">—</div></div>
+
+    <div class="status" id="status"></div>
+    <div class="footer">
+      <button class="next" id="nextBtn" disabled>ข้อต่อไป →</button>
+      <div class="badge">คะแนนข้อนี้ (ฐาน 5): <span id="slot">5</span></div>
+    </div>
+  </section>
+
+  <!-- END -->
+  <section id="end" class="endcard">
+    <div class="badge">MATH MARKET ACADEMY</div>
+    <h2 id="endTitle">Mission Complete!</h2>
+    <p id="endMsg">—</p>
+    <div style="display:flex;justify-content:center;gap:10px">
+      <button class="next" onclick="location.reload()">เล่นอีกครั้ง</button>
+    </div>
+  </section>
+</div>
+<canvas id="fire1" class="fire"></canvas>
+<canvas id="fire2" class="fire"></canvas>
+
+<script>
+/* =============== DATA: 20 สถานการณ์ 3 ช้อยส์ =============== */
+const ITEMS=[
+ {id:'001', stem:'ซื้อส้มมา 405 บาท ต้องการกำไร 20% ควรขายเท่าไร?', opts:['486 บาท','485 บาท','492 บาท'], key:0, hint:'ขาย = ต้นทุน × 1.20', why:'405 × 1.2 = 486 บาท'},
+ {id:'002', stem:'ปลากระป๋องต้นทุนแพ็คละ 36 บาท ต้องการกำไร 25% ขายเท่าไร?', opts:['45 บาท','42 บาท','44 บาท'], key:0, hint:'× 1.25', why:'36 × 1.25 = 45'},
+ {id:'003', stem:'ลงทุนซื้อของ 4,000 บาท ขายได้กำไร 1,000 บาท กำไรร้อยละเท่าไร?', opts:['25%','40%','20%'], key:0, hint:'กำไร/ต้นทุน × 100', why:'1,000 ÷ 4,000 = 0.25 = 25%'},
+ {id:'004', stem:'ข้าวสารกิโลละ 140 บาท ลด 15% ผู้ซื้อจ่ายเท่าไร?', opts:['119 บาท','125 บาท','120 บาท'], key:0, hint:'× 0.85', why:'140 × 0.85 = 119'},
+ {id:'005', stem:'ติดราคาขาย 120 บาท ลดให้ 15 บาท ส่วนลดคิดเป็นกี่เปอร์เซ็นต์?', opts:['12.5%','15%','10%'], key:0, hint:'ส่วนลด/ป้ายราคา ×100', why:'15/120 = 12.5%'},
+ {id:'006', stem:'ทุน 250 บาท ต้องการกำไร 10% ควรขายเท่าไร?', opts:['275 บาท','260 บาท','265 บาท'], key:0, hint:'× 1.10', why:'250 × 1.10 = 275'},
+ {id:'007', stem:'ทุน 21,000 บาท ขายกำไร 35% ได้กำไรเป็นเงินเท่าไร?', opts:['7,350 บาท','3,500 บาท','6,300 บาท'], key:0, hint:'กำไร = ต้นทุน × 0.35', why:'21,000 × 0.35 = 7,350'},
+ {id:'008', stem:'เสื้อยืดตั้งราคาตัวละ 350 บาท ลดให้ลูกค้า 12% ลูกค้าจ่ายเท่าไร?', opts:['308 บาท','320 บาท','300 บาท'], key:0, hint:'× (1 − 0.12)', why:'350 × 0.88 = 308'},
+ {id:'009', stem:'เครื่องดื่มต้นทุน 18 บาท ขาย 24 บาท กำไรร้อยละเท่าไร?', opts:['33⅓%','25%','20%'], key:0, hint:'กำไร 6 บาท ÷ 18', why:'6/18 = 1/3 = 33.33%'},
+ {id:'010', stem:'วุ้นมะพร้าวลดราคา 20% จาก 60 บาท เหลือเท่าไร?', opts:['48 บาท','50 บาท','46 บาท'], key:0, hint:'60 × 0.80', why:'= 48 บาท'},
+ {id:'011', stem:'ต้นทุน 2,450 บาท ลดราคา 40% ให้ลูกค้า ลูกค้าจ่ายเท่าไร?', opts:['1,470 บาท','1,000 บาท','1,540 บาท'], key:0, hint:'× 0.60', why:'2,450 × 0.60 = 1,470'},
+ {id:'012', stem:'น้ำผลไม้ขวดละ 60 บาท ขายขาดทุนขวดละ 3 บาท ขาดทุนกี่เปอร์เซ็นต์ของราคาขาย?', opts:['5%','3%','4%'], key:0, hint:'ขาดทุน/ราคาขาย ×100', why:'3/60 = 5%'},
+ {id:'013', stem:'ต้นทุน 3,220 บาท ลดราคาขาย 10% ผู้ซื้อจ่ายเท่าไร?', opts:['2,898 บาท','2,884 บาท','2,980 บาท'], key:0, hint:'× 0.90', why:'3,220 × 0.90 = 2,898'},
+ {id:'014', stem:'เค้กตั้งราคา 200 บาท ลด 25% เหลือเท่าไร?', opts:['150 บาท','175 บาท','125 บาท'], key:0, hint:'× 0.75', why:'200 × 0.75 = 150'},
+ {id:'015', stem:'ขายหมวกได้ 360 บาท จากราคาทุน 300 บาท กำไรร้อยละเท่าไร?', opts:['20%','25%','16⅔%'], key:0, hint:'กำไร 60 ÷ 300', why:'60/300 = 0.2 = 20%'},
+ {id:'016', stem:'ประกาศลดจาก 175 บาท เหลือ 147 บาท ลดกี่เปอร์เซ็นต์?', opts:['16%','28%','14%'], key:0, hint:'ลดไป 28 จาก 175', why:'28/175 = 0.16 = 16%'},
+ {id:'017', stem:'ทุน 825 บาท ต้องการกำไร 16% ควรขายเท่าไร?', opts:['957 บาท','132 บาท','960 บาท'], key:0, hint:'× 1.16', why:'825 × 1.16 = 957'},
+ {id:'018', stem:'สมุดต้นทุนเล่มละ 28 บาท ขาย 35 บาท กำไรร้อยละเท่าไร?', opts:['25%','20%','30%'], key:0, hint:'กำไร 7 ÷ 28', why:'= 25%'},
+ {id:'019', stem:'ลดราคา 5% จากป้าย 1,860 บาท ผู้ซื้อจ่ายเท่าไร?', opts:['1,767 บาท','1,768 บาท','1,760 บาท'], key:0, hint:'× 0.95', why:'1,860 × 0.95 = 1,767'},
+ {id:'020', stem:'ผ้าขนหนูราคา 380 บาท ลด 5% ลูกค้าจ่ายเท่าไร?', opts:['361 บาท','362 บาท','360 บาท'], key:0, hint:'× 0.95', why:'380 × 0.95 = 361'}
+];
+
+/* ===================== UTIL ===================== */
+const $=id=>document.getElementById(id);
+function shuffle(a){ a=a.slice(); for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; } return a; }
+function show(el){ el.style.display='block'; }
+function hide(el){ el.style.display='none'; }
+
+/* ===================== STATE & ELEMENTS ===================== */
+let idx=0,total=0,slot=5,answered=false,combo=1.0;
+const elTotal=$("total"), elCombo=$("combo"), elTimebar=$("timebar");
+const secHome=$("home"), secHow=$("howto"), secQuiz=$("quiz"), secEnd=$("end");
+const elCaseId=$("caseId"), elStem=$("stem"), elChoices=$("choices");
+const elStatus=$("status"), elNext=$("nextBtn"), elSlot=$("slot"), elHintBtn=$("hintBtn"), elHintPanel=$("hintPanel"), elHintText=$("hintText"), elSolBtn=$("solBtn");
+
+/* ===================== AUDIO (เบา ๆ) ===================== */
+let audioCtx=null; function ensureAudio(){ if(!audioCtx){ audioCtx=new (window.AudioContext||window.webkitAudioContext)(); } }
+function beep(f=880,d=.08,type='triangle',vol=.12){ if($("voiceSel").value==='mute') return; try{ ensureAudio(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type=type; o.frequency.value=f; g.gain.value=vol; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), d*1000);}catch(e){} }
+function okSFX(){ if($("voiceSel").value==='mute') return; beep(920,.07,'triangle',.14); setTimeout(()=>beep(1140,.07,'triangle',.13),110); setTimeout(()=>beep(1370,.09,'triangle',.12),220); }
+function badSFX(){ if($("voiceSel").value==='mute') return; ensureAudio(); const o=audioCtx.createOscillator(), g=audioCtx.createGain(); o.type='sawtooth'; o.frequency.setValueAtTime(300,audioCtx.currentTime); o.frequency.exponentialRampToValueAtTime(110,audioCtx.currentTime+.35); g.gain.value=.14; o.connect(g); g.connect(audioCtx.destination); o.start(); setTimeout(()=>o.stop(), 380); }
+
+/* ===================== FIREWORKS ===================== */
+function fireworks(canvas){ const ctx=canvas.getContext('2d'); canvas.width=innerWidth; canvas.height=innerHeight; const parts=[]; for(let k=0;k<7;k++){ const cx=Math.random()*canvas.width, cy=Math.random()*canvas.height*.5+canvas.height*.1, col=`hsl(${Math.random()*360},90%,60%)`; for(let i=0;i<60;i++){ const a=Math.random()*Math.PI*2, sp=Math.random()*3+1; parts.push({x:cx,y:cy,vx:Math.cos(a)*sp,vy:Math.sin(a)*sp,life:Math.random()*60+50,color:col}); } } let t=0; (function loop(){ t++; ctx.fillStyle="rgba(0,0,0,.06)"; ctx.fillRect(0,0,canvas.width,canvas.height); parts.forEach(p=>{ p.x+=p.vx; p.y+=p.vy; p.vy+=.02; p.life--; ctx.fillStyle=p.color; ctx.fillRect(p.x,p.y,2,2);}); if(t<140) requestAnimationFrame(loop); })(); }
+
+/* ===================== RENDER ===================== */
+const ORDER = ITEMS.slice();
+function render(){
+  answered=false; slot=5; elSlot.textContent=slot; elStatus.textContent=''; elNext.disabled=true; elSolBtn.disabled=true;
+  elHintPanel.classList.remove('show'); elHintBtn.disabled=false; elHintBtn.classList.remove('used');
+  const it=ORDER[idx]; elCaseId.textContent=`Q-${it.id}`; elStem.textContent=it.stem; elChoices.innerHTML='';
+  it.opts.forEach((op,i)=>{ const btn=document.createElement('button'); btn.className='choice'; btn.innerHTML=`<b class="badge">${String.fromCharCode(65+i)}</b> ${op}`; btn.addEventListener('click',()=>answer(i,btn)); elChoices.appendChild(btn); });
+}
+
+function useHint(){ if(answered || elHintBtn.disabled) return; const it=ORDER[idx]; elHintText.textContent=it.hint; elHintPanel.classList.add('show'); elHintBtn.classList.add('used'); elHintBtn.disabled=true; slot=Math.max(3, slot-2); elSlot.textContent=slot; }
+function showSol(){ const it=ORDER[idx]; elStatus.innerHTML += `<br><small>เฉลยเต็ม: ${it.why}</small>`; }
+
+function answer(i,btn){ if(answered) return; answered=true; const it=ORDER[idx]; const nodes=[...document.querySelectorAll('.choice')]; nodes.forEach(n=>n.disabled=true);
+  if(i===it.key){ okSFX(); btn.classList.add('correct'); combo = Math.min(1.5, +(combo+0.1).toFixed(1)); const gained = Math.round(slot * combo); elStatus.innerHTML=`✅ ถูกต้อง! <span class="oktxt">+${gained}</span> (ฐาน ${slot}, คอมโบ x${combo.toFixed(1)})`; total += gained; }
+  else { badSFX(); if(elChoices.children[it.key]) elChoices.children[it.key].classList.add('correct'); nodes.forEach(n=>{ if(!n.classList.contains('correct')) n.classList.add('wrong');}); combo=1.0; elStatus.innerHTML=`❌ ผิด • คำตอบที่ถูกคือ <b>${it.opts[it.key]}</b>`; }
+  elTotal.textContent=total; elCombo.textContent=`x${combo.toFixed(1)}`; elNext.disabled=false; elSolBtn.disabled=false;
+}
+
+function nextQuestion(){ idx++; if(idx<ORDER.length) render(); else finish(); }
+
+/* ===================== END ===================== */
+function finish(){ hide(secQuiz); show(secEnd); const t=$("endTitle"), m=$("endMsg"); let rank,note; if(total>=80){rank='🏆 Market Master';note='คำนวณไว ใช้เปอร์เซ็นต์คล่องมาก!';} else if(total>=60){rank='🎖️ Smart Seller';note='ดีมาก! ลองทำรอบต่อไปให้ไวขึ้น';} else {rank='🔰 Rookie Cashier';note='ไม่เป็นไร เล่นใหม่เพื่อเก็บคอมโบ';} t.textContent='Mission Complete — Math Market'; m.innerHTML=`<b>คะแนนรวม: ${total} / ${ORDER.length*10}</b><br><span class="rank">${rank}</span><br>${note}`; fireworks($("fire1")); setTimeout(()=>fireworks($("fire2")),260); }
+
+/* ===================== BUTTONS & FLOW ===================== */
+$("startBtn").addEventListener('click', ()=>{ total=0; idx=0; combo=1.0; elTotal.textContent=0; elCombo.textContent='x1.0'; hide(secHome); show(secQuiz); render(); });
+$("howBtn").addEventListener('click', ()=>{ hide(secHome); show(secHow); });
+$("backHome").addEventListener('click', ()=>{ hide(secHow); show(secHome); });
+$("nextBtn").addEventListener('click', nextQuestion);
+$("hintBtn").addEventListener('click', useHint);
+$("solBtn").addEventListener('click', showSol);
+</script>
+</body>
+</html>
